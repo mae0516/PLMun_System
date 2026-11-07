@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PLMun - Login Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(-45deg, #800000, #4a0000, #ffc107, #1e1e2d); background-size: 400% 400%; animation: gradientBG 12s ease infinite; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        .login-card { background: #ffffff; border-radius: 24px; padding: 40px 35px; width: 100%; max-width: 450px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); animation: slideUp 0.6s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        h3 { color: #1a1a1a; font-weight: 700; }
+        .subtitle { color: #666; font-size: 14px; font-weight: 400; }
+        .form-label { color: #333; font-weight: 600; font-size: 14px; }
+        
+        .form-control { background: #f8f9fa; border: 2px solid #eaeaea; color: #1a1a1a; border-radius: 12px; padding: 12px 15px; font-weight: 500; transition: 0.3s; }
+        .form-control:focus { background: #fff; border-color: #800000; box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.1); }
+        .form-control::placeholder { color: #a0a0a0; font-weight: 400; }
+
+        /* Role Selector - Ginawang 5 buttons */
+        .role-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 25px; }
+        .role-btn { 
+            flex: 1 1 calc(33.333% - 8px); /* 3 buttons per row */
+            padding: 10px 5px; 
+            border-radius: 10px; 
+            border: 2px solid #eaeaea; 
+            background: #fff; 
+            color: #666; 
+            cursor: pointer; 
+            text-align: center; 
+            font-weight: 600; 
+            font-size: 12px; 
+            transition: 0.3s; 
+            white-space: nowrap;
+        }
+        .role-btn:hover { background: #f8f9fa; }
+        .role-btn.active { background: #800000; border-color: #800000; color: white; box-shadow: 0 5px 15px rgba(128,0,0,0.3); }
+
+        .btn-primary-custom { background: linear-gradient(135deg, #800000, #cc0000); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 600; width: 100%; font-size: 16px; transition: 0.3s; }
+        .btn-primary-custom:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(128,0,0,0.4); }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h3 class="text-center mb-1">PLMun Portal</h3>
+    <p class="text-center subtitle mb-4">Secure access to your dashboard</p>
+
+    <!-- 5 ROLE SELECTOR -->
+    <div class="role-selector">
+        <div class="role-btn active" onclick="selectRole(this, 'Student')">Student</div>
+        <div class="role-btn" onclick="selectRole(this, 'Faculty')">Faculty</div>
+        <div class="role-btn" onclick="selectRole(this, 'Staff')">Staff</div>
+        <div class="role-btn" onclick="selectRole(this, 'Visitor')">Visitor</div>
+        <div class="role-btn" onclick="selectRole(this, 'Admin')">Admin</div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" id="email" class="form-control" placeholder="name@plmun.edu.ph">
+    </div>
+    <div class="mb-4">
+        <label class="form-label">Password</label>
+        <input type="password" id="password" class="form-control" placeholder="••••••">
+    </div>
+    
+    <button class="btn-primary-custom" id="loginBtn" onclick="login()">Log In</button>
+    
+    <p class="text-center mt-4 mb-0" style="font-size: 14px; color: #666;">
+        Don't have an account? <a href="register.html" style="color: #800000; font-weight: 600; text-decoration: none;">Register here</a>
+    </p>
+</div>
+
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwKzx8BuI5dlM3hPCtN5S0UodKuLKBQDQRmVAzWnn0qlkxbkmoM2OuAwIpN1Z3X66G7/exec'; 
+    let selectedRole = 'Student';
+
+    function selectRole(element, role) {
+        document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
+        element.classList.add('active');
+        selectedRole = role;
+        
+        const registerLink = document.querySelector('a[href="register.html"]');
+        registerLink.parentElement.style.display = (role === 'Admin') ? 'none' : 'block';
+    }
+
+    async function login() {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const btn = document.getElementById('loginBtn');
+
+        if (!email || !password) return alert('Please enter email and password.');
+
+        btn.innerText = 'Authenticating...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'login', email: email, password: password }),
+                headers: { 'Content-Type': 'text/plain' }
+            });
+            
+            const result = await response.json();
+
+            if (result.success) {
+                const user = result.user;
+                
+                // 🔒 STRICT ROLE VERIFICATION
+                if (user.role !== selectedRole) {
+                    alert(`Access Denied. You are registered as ${user.role}. Please select the ${user.role} role.`);
+                    btn.innerText = 'Log In'; btn.disabled = false; return;
+                }
+
+                // KUNG TAMA ANG ROLE, DITO PALANG MAG-SAVE AT REDIRECT
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                
+                if (user.role === 'Admin' || user.role === 'Staff') {
+                    window.location.href = 'admin_dashboard.html';
+                } else if (user.role === 'Student' || user.role === 'Faculty') {
+                    window.location.href = 'student_dashboard.html';
+                } else if (user.role === 'Visitor') {
+                    window.location.href = 'visitor_dashboard.html';
+                }
+
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            alert('Network error.');
+        } finally {
+            btn.innerText = 'Log In';
+            btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>

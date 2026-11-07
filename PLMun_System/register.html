@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PLMun - Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        /* Animated Mesh Gradient Background */
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            margin: 0; 
+            min-height: 100vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            background: linear-gradient(-45deg, #800000, #4a0000, #ffc107, #1e1e2d);
+            background-size: 400% 400%;
+            animation: gradientBG 12s ease infinite;
+            padding: 20px;
+        }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* Solid White Card */
+        .register-card { 
+            background: #ffffff; 
+            border-radius: 24px; 
+            padding: 40px; 
+            width: 100%; 
+            max-width: 480px; 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3); 
+            animation: slideUp 0.6s ease-out; 
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        h3 { color: #1a1a1a; font-weight: 700; }
+        .form-label { color: #333; font-weight: 600; font-size: 14px; }
+        
+        .form-control, .form-select { 
+            background: #f8f9fa; 
+            border: 2px solid #eaeaea; 
+            color: #1a1a1a; 
+            border-radius: 12px; 
+            padding: 12px 15px; 
+            font-weight: 500; 
+            transition: 0.3s; 
+        }
+        .form-control:focus, .form-select:focus { 
+            background: #fff; 
+            border-color: #800000; 
+            box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.1); 
+        }
+        .form-control::placeholder { color: #a0a0a0; font-weight: 400; }
+        
+        .btn-primary-custom { 
+            background: linear-gradient(135deg, #800000, #cc0000); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            width: 100%; 
+            font-size: 16px; 
+            transition: 0.3s; 
+        }
+        .btn-primary-custom:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 25px rgba(128,0,0,0.4); 
+        }
+        
+        #qrResult { display: none; text-align: center; }
+        .qr-img { width: 200px; height: 200px; border-radius: 16px; border: 3px solid #800000; margin-bottom: 20px; padding: 10px; background: #fff; box-shadow: 0 10px 25px rgba(128,0,0,0.15); }
+    </style>
+</head>
+<body>
+
+<div class="register-card">
+    <!-- STEP 1: FORM -->
+    <div id="formArea">
+        <h3 class="text-center mb-4">Create Account</h3>
+        <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="fullName" class="form-control" placeholder="Juan Dela Cruz" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            <input type="email" id="email" class="form-control" placeholder="juan@plmun.edu.ph" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" id="password" class="form-control" placeholder="Min. 6 characters" required>
+        </div>
+        <div class="mb-4">
+            <label class="form-label">Role</label>
+            <select id="role" class="form-select">
+                <option value="Student">🎓 Student</option>
+                <option value="Faculty">👨‍🏫 Faculty</option>
+                <option value="Staff">💼 Staff</option>
+                <option value="Visitor">🛂 Visitor</option>
+            </select>
+        </div>
+        <button class="btn-primary-custom mb-3" id="registerBtn" onclick="register()">Create Account</button>
+        <p class="text-center mb-0" style="font-size: 14px; color: #666;">Already have an account? <a href="login.html" style="color: #800000; font-weight: 600; text-decoration: none;">Log in</a></p>
+    </div>
+
+    <!-- STEP 2: SUCCESS & AUTO-LOGIN -->
+    <div id="qrResult">
+        <h3 class="mb-2" style="color: #198754;">Registration Successful! 🎉</h3>
+        <p class="mb-4" style="color: #666; font-size: 14px;">Save your QR code below. You are now logged in.</p>
+        
+        <img id="qrImage" src="" alt="QR Code" class="qr-img">
+        
+        <h5 id="resultName" class="fw-bold mb-1" style="color: #1a1a1a;"></h5>
+        <p id="resultRole" class="mb-4" style="color: #666; font-size: 14px;"></p>
+        
+        <div class="alert alert-warning border-0 rounded-3 text-start small mb-4" style="background: #fff3cd; color: #856404;">
+            ⚠️ <strong>Important:</strong> Save this QR code. It serves as your digital ID.
+        </div>
+        
+        <button class="btn btn-dark w-100 mb-2 py-2 rounded-3" onclick="downloadQR()">📥 Save to Device</button>
+        <!-- AUTO-LOGIN BUTTON -->
+        <button class="btn btn-success w-100 py-2 rounded-3 fw-bold" onclick="goToDashboard()">Proceed to My Dashboard →</button>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwKzx8BuI5dlM3hPCtN5S0UodKuLKBQDQRmVAzWnn0qlkxbkmoM2OuAwIpN1Z3X66G7/exec';
+    let currentQRString = ''; 
+    let currentName = '';
+    let registeredUser = null;
+
+    async function register() {
+        const fullName = document.getElementById('fullName').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const role = document.getElementById('role').value;
+        const btn = document.getElementById('registerBtn');
+
+        if (!fullName || !email || !password) return alert('Please fill in all fields.');
+        if (password.length < 6) return alert('Password must be at least 6 characters.');
+
+        btn.innerText = 'Processing...'; btn.disabled = true;
+        
+        try {
+            const response = await fetch(API_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'register', data: { fullName, role, email, password } }), 
+                headers: { 'Content-Type': 'text/plain' } 
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                currentQRString = result.qrString; 
+                currentName = fullName;
+                
+                // I-save ang data para sa auto-login
+                registeredUser = {
+                    userId: result.userId,
+                    fullName: fullName,
+                    role: role,
+                    email: email,
+                    qrString: result.qrString
+                };
+
+                // Ipakita ang QR code
+                document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(result.qrString)}`;
+                document.getElementById('resultName').innerText = fullName;
+                document.getElementById('resultRole').innerText = role + ' • ' + email;
+                
+                document.getElementById('formArea').style.display = 'none';
+                document.getElementById('qrResult').style.display = 'block';
+            } else { 
+                alert('Error: ' + result.message); 
+            }
+        } catch (error) { 
+            alert('Network error. Please try again.'); 
+        } finally { 
+            btn.innerText = 'Create Account'; btn.disabled = false; 
+        }
+    }
+
+    function downloadQR() {
+        const link = document.createElement('a');
+        link.href = `https://api.qrserver.com/v1/create-qr-code/?size=800x800&data=${encodeURIComponent(currentQRString)}`;
+        link.download = 'PLMun_QR_' + currentName.replace(/\s+/g, '_') + '.png';
+        link.click();
+    }
+
+    // AUTO-LOGIN FUNCTION (Para sa lahat ng roles)
+    function goToDashboard() {
+        if (!registeredUser) return alert('Registration data missing.');
+        
+        // I-save sa localStorage (Auto-login)
+        localStorage.setItem('currentUser', JSON.stringify(registeredUser));
+        
+        // ROLE-BASED REDIRECT (Lahat ng roles sakop)
+        if (registeredUser.role === 'Admin' || registeredUser.role === 'Staff') {
+            window.location.href = 'admin_dashboard.html';
+        } else if (registeredUser.role === 'Student' || registeredUser.role === 'Faculty') {
+            window.location.href = 'student_dashboard.html';
+        } else if (registeredUser.role === 'Visitor') {
+            window.location.href = 'visitor_dashboard.html';
+        }
+    }
+</script>
+</body>
+</html>

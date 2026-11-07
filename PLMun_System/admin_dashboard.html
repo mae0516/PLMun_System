@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PLMun - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(-45deg, #f0f2f5, #e0eafc, #fce4e4, #f0f2f5); background-size: 400% 400%; animation: gradientBG 15s ease infinite; color: #1a1a1a; overflow-x: hidden; padding-bottom: 90px; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .container-custom { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+        
+        .card-clean { background: #ffffff; border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 25px; height: 100%; transition: transform 0.3s; }
+        .card-clean:hover { transform: translateY(-3px); }
+        
+        .stat-card { background: #ffffff; border-radius: 16px; border: none; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); transition: transform 0.3s; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0,0,0,0.12); }
+        .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        
+        .live-dot { height: 8px; width: 8px; background-color: #198754; border-radius: 50%; display: inline-block; animation: blink 1.5s infinite; margin-right: 5px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .user-pill { background: #fff; padding: 8px 16px; border-radius: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); display: flex; align-items: center; gap: 10px; font-weight: 600; color: #1a1a1a; }
+        .avatar { width: 32px; height: 32px; background: #800000; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        
+        .activity-list { max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .activity-list::-webkit-scrollbar { width: 6px; }
+        .activity-list::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .activity-list::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        .activity-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 15px; border-bottom: 1px solid #f0f0f0; transition: 0.2s; border-radius: 10px; }
+        .activity-item:hover { background: #f8f9fa; }
+        .activity-item:last-child { border-bottom: none; }
+
+        .mobile-nav { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; box-shadow: 0 -4px 20px rgba(0,0,0,0.08); z-index: 1000; padding: 10px 20px; justify-content: space-around; border-top-left-radius: 20px; border-top-right-radius: 20px; }
+        .mobile-nav a { display: flex; flex-direction: column; align-items: center; color: #888; text-decoration: none; font-size: 12px; font-weight: 600; gap: 4px; }
+        .mobile-nav a.active, .mobile-nav a:hover { color: #800000; }
+        .mobile-nav i { font-size: 20px; }
+
+        @media (max-width: 768px) {
+            .top-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .stat-card { padding: 15px; }
+            .card-clean { padding: 15px; }
+            .mobile-nav { display: flex; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="mobile-nav d-md-none">
+    <a href="#" class="active"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+    <a href="scanner.html"><i class="bi bi-camera-fill"></i> Scanner</a>
+    <a href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Logout</a>
+</div>
+
+<div class="container-custom">
+    <div class="top-header">
+        <div>
+            <h3 class="fw-bold mb-1" style="color: #1a1a1a;">Analytics</h3>
+            <p class="mb-0 small" style="color: #555; font-weight: 500;"><span class="live-dot"></span>Live • Updated: <span id="lastUpdated">...</span></p>
+        </div>
+        <div class="user-pill">
+            <div class="avatar" id="navAvatar">A</div>
+            <span id="navRole">Admin</span>
+        </div>
+    </div>
+
+    <!-- 4 STATS CARDS -->
+    <div class="row g-3 mb-4">
+        <!-- Check IN -->
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center text-md-start">
+                <div class="d-flex justify-content-center justify-content-md-between align-items-center mb-3">
+                    <div class="stat-icon bg-danger bg-opacity-10 text-danger mx-auto mx-md-0">⬇️</div>
+                </div>
+                <h6 class="fw-semibold mb-1" style="color: #666; font-size: 12px;">Check IN</h6>
+                <h3 class="fw-bold mb-0" style="color: #1a1a1a;" id="statIn">0</h3>
+            </div>
+        </div>
+        <!-- Check OUT -->
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center text-md-start">
+                <div class="d-flex justify-content-center justify-content-md-between align-items-center mb-3">
+                    <div class="stat-icon bg-success bg-opacity-10 text-success mx-auto mx-md-0">⬆️</div>
+                </div>
+                <h6 class="fw-semibold mb-1" style="color: #666; font-size: 12px;">Check OUT</h6>
+                <h3 class="fw-bold mb-0" style="color: #1a1a1a;" id="statOut">0</h3>
+            </div>
+        </div>
+        <!-- Currently Inside -->
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center text-md-start border-start border-4 border-primary">
+                <div class="d-flex justify-content-center justify-content-md-between align-items-center mb-3">
+                    <div class="stat-icon bg-primary bg-opacity-10 text-primary mx-auto mx-md-0">🏢</div>
+                </div>
+                <h6 class="fw-semibold mb-1" style="color: #666; font-size: 12px;">Currently Inside</h6>
+                <h3 class="fw-bold mb-0" style="color: #1a1a1a;" id="statInside">0</h3>
+            </div>
+        </div>
+        <!-- Total Users -->
+        <div class="col-6 col-md-3">
+            <div class="stat-card text-center text-md-start">
+                <div class="d-flex justify-content-center justify-content-md-between align-items-center mb-3">
+                    <div class="stat-icon bg-warning bg-opacity-10 text-warning mx-auto mx-md-0">👥</div>
+                </div>
+                <h6 class="fw-semibold mb-1" style="color: #666; font-size: 12px;">Total Users</h6>
+                <h3 class="fw-bold mb-0" style="color: #1a1a1a;" id="statUsers">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHART & RECENT LOGS -->
+    <div class="row g-3">
+        <div class="col-12 col-lg-7">
+            <div class="card-clean">
+                <h6 class="fw-bold mb-4" style="color: #666;">Hourly Traffic</h6>
+                <div style="position: relative; height: 350px; width: 100%;">
+                    <canvas id="trafficChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <div class="card-clean">
+                <h6 class="fw-bold mb-4" style="color: #666;">Recent Logs <span class="badge bg-secondary bg-opacity-10 text-secondary ms-2" style="font-size: 10px;">Latest</span></h6>
+                <div class="activity-list" id="recentLogsTable">
+                    <div class="text-center py-4" style="color: #888;">Loading data...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    // 🔒 SECURITY: Admin/Staff Only
+    if (!currentUser) {
+        window.location.href = 'login.html';
+    } else if (currentUser.role !== 'Admin' && currentUser.role !== 'Staff') {
+        alert('Access Denied. This dashboard is for Admins and Staff only.');
+        if (currentUser.role === 'Student' || currentUser.role === 'Faculty') window.location.href = 'student_dashboard.html';
+        else if (currentUser.role === 'Visitor') window.location.href = 'visitor_dashboard.html';
+        else window.location.href = 'login.html';
+    }
+    
+    document.getElementById('navAvatar').innerText = currentUser.fullName.charAt(0).toUpperCase();
+    document.getElementById('navRole').innerText = currentUser.role;
+
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwKzx8BuI5dlM3hPCtN5S0UodKuLKBQDQRmVAzWnn0qlkxbkmoM2OuAwIpN1Z3X66G7/exec'; 
+    let trafficChart;
+
+    async function fetchDashboardData() {
+        try {
+            const response = await fetch(API_URL + '?action=dashboard');
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById('statIn').innerText = result.stats.totalIn;
+                document.getElementById('statOut').innerText = result.stats.totalOut;
+                document.getElementById('statInside').innerText = result.stats.currentlyInside;
+                document.getElementById('statUsers').innerText = result.stats.totalUsers;
+                document.getElementById('lastUpdated').innerText = new Date().toLocaleTimeString();
+                updateChart(result.chartData);
+                updateTable(result.recentLogs);
+            }
+        } catch (error) { document.getElementById('lastUpdated').innerText = "Offline"; }
+    }
+
+    function updateChart(chartData) {
+        const labels = Object.keys(chartData);
+        const dataValues = Object.values(chartData);
+        if (trafficChart) {
+            trafficChart.data.datasets[0].data = dataValues;
+            trafficChart.update();
+        } else {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, '#800000');
+            gradient.addColorStop(1, '#cc0000');
+            trafficChart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ data: dataValues, backgroundColor: gradient, borderRadius: 6, barPercentage: 0.6 }] },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { stepSize: 1, color: '#666' }, grid: { color: '#f0f0f0' } }, 
+                        x: { ticks: { color: '#666' }, grid: { display: false } } 
+                    }
+                }
+            });
+        }
+    }
+
+    function updateTable(logs) {
+        const tableBody = document.getElementById('recentLogsTable');
+        tableBody.innerHTML = '';
+        if (!logs || logs.length === 0) {
+            tableBody.innerHTML = '<div class="text-center py-4" style="color: #888;">No recent logs.</div>';
+            return;
+        }
+        logs.forEach(log => {
+            const badge = log.action === 'IN' 
+                ? '<span class="badge bg-success px-3 py-2 rounded-pill">IN</span>' 
+                : '<span class="badge bg-danger px-3 py-2 rounded-pill">OUT</span>';
+            tableBody.innerHTML += `
+                <div class="activity-item">
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold" style="font-size: 14px; color: #1a1a1a;">${log.name}</span>
+                        <span style="font-size: 11px; color: #888;">${log.time}</span>
+                    </div>
+                    <div>${badge}</div>
+                </div>
+            `;
+        });
+    }
+
+    function logout() { localStorage.removeItem('currentUser'); window.location.href = 'login.html'; }
+    fetchDashboardData();
+    setInterval(fetchDashboardData, 5000);
+</script>
+</body>
+</html>
